@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulatore di Investimenti</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="slide-navbar-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="stylee.css">
+</head>
+<body>
+<div>
+<h1>Simulatore di Investimenti</h1>
+<p><strong>Budget attuale:</strong> <span id="budgetDisplay">$1000</span></p>
+    <button onclick="aumentaBudget(100)">Aumenta</button>
+    <button onclick="diminuisciBudget(100)">Diminuisci</button>
+<p id="currentPriceDisplay"><strong>Prezzo corrente:</strong> <span id="priceDisplay">$0.00</span></p>
+<p>Seleziona un'azione e la quantità di denaro da investire:</p>
+
+<select id="azioni" onchange="updateCurrentPrice()">
+    <option value="AAPL">AAPL (Apple Inc.)</option>
+    <option value="GOOGL">GOOGL (Alphabet Inc.)</option>
+    <option value="MSFT">MSFT (Microsoft Corporation)</option>
+    <option value="AMZN">AMZN (Amazon.com Inc.)</option>
+    <option value="TSLA">TSLA (Tesla Inc.)</option>
+    <option value="NFLX">NFLX (Netflix Inc.)</option>
+    <option value="FB">FB (Facebook Inc.)</option>
+    <option value="NVDA">NVDA (NVIDIA Corporation)</option>
+    <option value="V">V (Visa Inc.)</option>
+    <option value="GOOG">GOOG (Alphabet Inc., azione di classe C)</option>
+</select>
+
+<input type="number" id="quantita" placeholder="Quantità di denaro da investire">
+
+<button onclick="investi()">Investi</button>
+<!-- Aggiungi il canvas per il grafico -->
+<!-- Aggiungi il campo nascosto per il nome utente -->
+<input type="hidden" id="username" value="federico">
+
+<canvas id="graficoAndamento" width="400" height="200"></canvas>
+<table id="azioniPossedute">
+    <thead>
+        <tr>
+            <th>Azione</th>
+            <th>Quantità</th>
+            <th>Prezzo di acquisto</th>
+            <th>Valore attuale</th>
+            <th>Azione</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Le righe della tabella saranno aggiunte dinamicamente con JavaScript -->
+    </tbody>
+</table>
+</div>
+<script>
+    function aumentaBudget(amount) {
+            var budgetDisplay = document.getElementById("budgetDisplay");
+            var currentAmount = parseInt(budgetDisplay.innerText.replace('$', ''));
+            var newAmount = currentAmount + amount;
+            budgetDisplay.innerText = "$" + newAmount;
+        }
+
+        function diminuisciBudget(amount) {
+            var budgetDisplay = document.getElementById("budgetDisplay");
+            var currentAmount = parseInt(budgetDisplay.innerText.replace('$', ''));
+            var newAmount = currentAmount - amount;
+            if (newAmount < 0) {
+                alert("Non puoi avere un budget negativo!");
+                return;
+            }
+            budgetDisplay.innerText = "$" + newAmount;
+        }
+
+    var apiKey = 'BEN4TAW6PB1lC0B4'; // Chiave API (NON esporre direttamente in produzione)
+    var apiUrlBase = 'https://www.alphavantage.co/query?function=GLOBAL_QUOTE';
+
+    function updateCurrentPrice() {
+        var azione = document.getElementById("azioni").value;
+
+        if (azione) {
+            var apiUrl = `${apiUrlBase}&symbol=${azione}&apikey=${apiKey}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    var prezzoCorrente = data['Global Quote']['05. price'];
+                    document.getElementById("priceDisplay").innerText = `$${prezzoCorrente}`;
+                })
+                .catch(error => {
+                    console.error('Errore nella richiesta API:', error);
+                    alert('Si è verificato un errore durante la richiesta API.');
+                });
+        }
+    }
+
+    function investi() {
+    var azione = document.getElementById("azioni").value;
+    var quantita = document.getElementById("quantita").value;
+    var username = document.getElementById("username").value; // Prendi il nome utente corrente
+
+    if (!azione || isNaN(quantita) || quantita <= 0) {
+        alert("Inserisci un'azione valida e una quantità di denaro positiva.");
+    } else {
+        var prezzoAzione = document.getElementById("priceDisplay").innerText;
+
+        // Creazione dell'oggetto acquisto
+        var acquisto = {
+            "azione": azione,
+            "quantita": parseInt(quantita),
+            "prezzoAzione": parseFloat(prezzoAzione.substring(1))
+        };
+
+        // Invia una richiesta POST al server per aggiungere l'acquisto
+        fetch('/addPurchase', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username: username, purchase: acquisto })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.message);
+                // Aggiorna la tabella delle azioni possedute
+                updatePortfolioTable(azione, quantita, prezzoAzione);
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Errore durante la richiesta:', error);
+            alert('Si è verificato un errore durante la richiesta.');
+        });
+    }
+}
+
+
+    function updatePortfolioTable(azione, quantita, prezzoAzione) {
+        // Aggiungi una riga alla tabella delle azioni possedute
+        var table = document.getElementById("azioniPossedute").getElementsByTagName('tbody')[0];
+        var row = table.insertRow(table.rows.length);
+
+        // Crea celle per la nuova riga
+        var cellAzione = row.insertCell(0);
+        var cellQuantita = row.insertCell(1);
+        var cellPrezzoAcquisto = row.insertCell(2);
+        var cellValoreAttuale = row.insertCell(3);
+        var cellVendi = row.insertCell(4);
+
+        // Assegna i valori alle celle
+        cellAzione.innerHTML = azione;
+        cellQuantita.innerHTML = quantita;
+        cellPrezzoAcquisto.innerHTML = prezzoAzione;
+        cellValoreAttuale.innerHTML = "Calcola dinamicamente"; // Questo valore verrà calcolato dinamicamente
+        cellVendi.innerHTML = '<button onclick="vendiAzione(this)">Vendi</button>';
+    }
+
+    function vendiAzione(button) {
+        // Trova la riga padre del pulsante "Vendi"
+        var row = button.parentNode.parentNode;
+
+        // Estrai i dati dalla riga
+        var azione = row.cells[0].innerHTML;
+        var quantita = row.cells[1].innerHTML;
+        var prezzoAcquisto = row.cells[2].innerHTML;
+
+        // Aggiorna il budget e la tabella dopo la vendita (da implementare)
+        // ...
+
+        // Rimuovi la riga dalla tabella delle azioni possedute
+        row.remove();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+/* styleee.css */
+
+/* Stilizzazione del pulsante per mostrare il formulario di registrazione */
+.show-register-form {
+    background-color: #4CAF50; /* Colore di sfondo */
+    color: white; /* Colore del testo */
+    padding: 15px 30px; /* Spaziatura interna */
+    border: none; /* Rimuove il bordo */
+    border-radius: 25px; /* Bordo arrotondato */
+    cursor: pointer; /* Cambia il cursore al passaggio */
+    font-size: 18px; /* Dimensione del testo */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Transizioni */
+    overflow: hidden; /* Nasconde il testo che fuoriesce dal pulsante */
+    position: relative; /* Posizione relativa per i pseudo-elementi */
+}
+
+/* Effetto onda al passaggio del mouse */
+.show-register-form::before {
+    content: ''; /* Contenuto vuoto */
+    position: absolute; /* Posizione assoluta */
+    top: 50%; /* Metà superiore del pulsante */
+    left: 50%; /* Metà sinistra del pulsante */
+    width: 300%; /* Larghezza */
+    height: 300%; /* Altezza */
+    background-color: rgba(255, 255, 255, 0.2); /* Colore di sfondo */
+    border-radius: 50%; /* Bordo arrotondato */
+    transition: width 0.3s ease, height 0.3s ease; /* Transizioni */
+    transform: translate(-50%, -50%) scale(0); /* Traslazione e scala */
+    z-index: 0; /* Indice di profondità */
+}
+
+.show-register-form:hover::before {
+    width: 1000%; /* Aumenta la larghezza al passaggio del mouse */
+    height: 1000%; /* Aumenta l'altezza al passaggio del mouse */
+}
+
+/* Stilizzazione del testo del pulsante */
+.button__text {
+    position: relative; /* Posizione relativa */
+    z-index: 1; /* Indice di profondità */
+}
+
+/* Animazione quando il pulsante viene cliccato */
+.show-register-form:active::before {
+    background-color: rgba(255, 255, 255, 0.4); /* Cambia il colore di sfondo quando viene cliccato */
+}
+
+/* Effetto traslucido */
+.show-register-form:hover {
+    background-color: #45a049; /* Cambia il colore di sfondo al passaggio del mouse */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Ombra */
+}
+
+.show-register-form:active {
+    transform: scale(0.95); /* Riduce leggermente le dimensioni quando viene cliccato */
+}

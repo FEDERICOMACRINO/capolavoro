@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Navbar</title>
+    <link rel="stylesheet" type="text/css" href="slide-navbar-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styleee.css"> <!-- Aggiunto il collegamento al file styleee.css -->
+</head>
+<body>    
+    
+    <p>&copy; 2024 Nome dell'App. Tutti i diritti riservati.</p>
+    <img src="img.PNG" alt="Nome descrittivo dell'immagine">
+   
+    <div class="container">
+        <div class="screen">
+            <div class="screen__content">
+                <form class="login" onsubmit="return loginUser()">
+                    <div class="login__field">
+                        <i class="login__icon fas fa-user"></i>
+                        <input type="text" id="username" name="username" class="login__input" placeholder="User name / Email" required="">
+                    </div>
+                    <div class="login__field">
+                        <i class="login__icon fas fa-lock"></i>
+                        <input type="password" id="password" name="pswd" class="login__input" placeholder="Password" required="">
+                    </div>
+                    <button type="submit" class="button login__submit">
+                        <span class="button__text">Log In Now</span>
+                        <i class="button__icon fas fa-chevron-right"></i>
+                    </button>
+                </form>
+                <div class="social-login">
+                    <div class="social-icons">
+                        <a href="#" class="social-login__icon fab fa-instagram"></a>
+                        <a href="#" class="social-login__icon fab fa-facebook"></a>
+                        <a href="#" class="social-login__icon fab fa-twitter"></a>
+                    </div>
+                </div>
+
+                <form class="register" style="display: none;" onsubmit="return registerUser()">
+                    <div class="login__field">
+                        <i class="login__icon fas fa-user"></i>
+                        <input type="text" id="new_username" name="new_username" class="login__input" placeholder="Nuovo User name / Email" required="">
+                    </div>
+                    <div class="login__field">
+                        <i class="login__icon fas fa-lock"></i>
+                        <input type="password" id="new_password" name="new_password" class="login__input" placeholder="Nuova Password" required="">
+                    </div>
+                    <button type="submit" class="button login__submit">
+                        <span class="button__text">registrati</span>
+                        <i class="button__icon fas fa-chevron-right"></i>
+                    </button>
+                    </button>
+                </form>
+
+                <!-- Aggiunto il pulsante per mostrare il formulario di registrazione -->
+                <button type="button" class="button show-register-form" onclick="showRegisterForm()">
+                    <span class="button__text">apri il form per la registrazione</span>
+                </button>
+            </div>
+            <div class="screen__background">
+                <span class="screen__background__shape screen__background__shape4"></span>
+                <span class="screen__background__shape screen__background__shape3"></span>      
+                <span class="screen__background__shape screen__background__shape2"></span>
+                <span class="screen__background__shape screen__background__shape1"></span>
+            </div>      
+        </div>
+            
+    </div>
+
+
+   <!-- Aggiorna la funzione loginUser -->
+   <script>
+    function loginUser() {
+        var username = document.getElementById("username").value;
+        var password = document.getElementById("password").value;
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Server Response:', data);
+            if (data.success) {
+                alert('Login successful');
+                window.location.href = "capolavoro.html"; // Reindirizza a accessoRiuscito.html nella cartella public
+            } else {
+                alert('Login failed');
+                window.location.href = "notPermission.html"; // Reindirizza a accessoNegato.html nella cartella public
+            }
+        })
+        .catch(error => {
+            console.error('Errore nella richiesta HTTP:', error);
+            alert('Si è verificato un errore durante la richiesta al server.');
+        });
+
+        return false; // Per evitare l'invio del form e il ricaricamento della pagina
+    }
+
+    function registerUser() {
+        var newUsername = document.getElementById("new_username").value;
+        var newPassword = document.getElementById("new_password").value;
+
+        fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username: newUsername, password: newPassword }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Registrazione avvenuta con successo! Ora puoi effettuare il login.');
+            } else {
+                alert('Errore durante la registrazione: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Errore durante la richiesta HTTP:', error);
+            alert('Si è verificato un errore durante la richiesta al server.');
+        });
+
+        return false; // Per evitare l'invio del form e il ricaricamento della pagina
+    }
+
+    // Funzione per mostrare il formulario di registrazione
+    function showRegisterForm() {
+        document.querySelector('.register').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
